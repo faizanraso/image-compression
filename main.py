@@ -4,11 +4,19 @@ import math
 
 
 def main():
-    image = cv2.imread("./image.jpeg", 1)
+    image = cv2.imread("./image.png", 1)
     B, G, R = cv2.split(image)
     Y, U, V = rbg_to_yuv(R, G, B)
     Y, U, V = floor_values(Y, U, V)
     Y, U, V = downsample(Y, U, V)
+
+    # Save copies of the YUV channels
+    # cv2.imwrite("y_channel.jpeg", Y.astype(np.uint8))
+    # cv2.imwrite("u_channel.jpeg", U.astype(np.uint8))
+    # cv2.imwrite("v_channel.jpeg", V.astype(np.uint8))
+
+    # Convert the down sampled image to RGB without upsampling
+
 
     # make sure the size of all components are the same
     new_height, new_width = int(Y.shape[0]*2), int(Y.shape[1])*2
@@ -24,6 +32,10 @@ def main():
     cv2.imshow("Image", new_image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+    cv2.imwrite("new_image.jpeg", new_image)
+    value = calculate_psnr(image, new_image)
+    print(f"PSNR value is {value} dB")
 
 
 # Convert RGB to YUV
@@ -95,6 +107,16 @@ def yuv_to_rgb(y, u, v):
     b = y + 1.7790 * (u - 128)
 
     return np.clip(r, 0, 255).astype(np.uint8), np.clip(g, 0, 255).astype(np.uint8), np.clip(b, 0, 255).astype(np.uint8)
+
+
+def calculate_psnr(original_image, new_image):
+    mean_squared_error = np.mean((original_image - new_image) ** 2)
+    if (mean_squared_error != 0):
+        max_pixel = 255.0
+        ratio = 20 * math.log10(max_pixel / math.sqrt(mean_squared_error))
+        return ratio
+    else:
+        return math.inf
 
 
 if __name__ == "__main__":

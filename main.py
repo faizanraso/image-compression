@@ -4,16 +4,16 @@ import math
 
 
 def main():
-    image = cv2.imread("./image.jpeg", 1)
+    image = cv2.imread("./images/image.jpeg", 1)
     B, G, R = cv2.split(image)
     Y, U, V = rbg_to_yuv(R, G, B)
     Y, U, V = floor_values(Y, U, V)
     Y, U, V = downsample(Y, U, V)
 
     # Save copies of the YUV channels
-    cv2.imwrite("y_channel.jpeg", Y.astype(np.uint8))
-    cv2.imwrite("u_channel.jpeg", U.astype(np.uint8))
-    cv2.imwrite("v_channel.jpeg", V.astype(np.uint8))
+    cv2.imwrite("./images/y_channel.jpeg", Y.astype(np.uint8))
+    cv2.imwrite("./images/u_channel.jpeg", U.astype(np.uint8))
+    cv2.imwrite("./images/v_channel.jpeg", V.astype(np.uint8))
 
     # make sure the size of all components are the same
     new_height, new_width = int(Y.shape[0]*2), int(Y.shape[1])*2
@@ -27,7 +27,7 @@ def main():
 
     new_image = cv2.merge([B, G, R]).astype(np.uint8)
 
-    cv2.imwrite("new_image.jpeg", new_image)
+    cv2.imwrite("./images/new_image.jpeg", new_image)
     value = calculate_psnr(image, new_image)
     print(f"PSNR: {value} dB")
 
@@ -107,6 +107,8 @@ def yuv_to_rgb(y, u, v):
     return np.clip(r, 0, 255).astype(np.uint8), np.clip(g, 0, 255).astype(np.uint8), np.clip(b, 0, 255).astype(np.uint8)
 
 # calculate PSNR
+
+
 def calculate_psnr(original_image, new_image):
     mean_squared_error = np.mean((original_image - new_image) ** 2)
     if (mean_squared_error != 0):
